@@ -373,101 +373,11 @@ bool fetch_f1_driver_standings() {
   return true;
 }
 
-// Fetch driver standings, returns false on fail, loads them into current_season struct otherwise
-/*bool old_fetch_f1_driver_standings() {
-  HTTPClient client;
-  std::string url = "https://api.jolpi.ca/ergast/f1/current/driverstandings/";
-  
-  client.begin(url.c_str());
-  int statusCode = client.GET();
-
-  if (statusCode != 200) {
-    client.end();
-    return false;
-  }
-
-  JsonDocument doc;
-  DeserializationError error = deserializeJson(doc, client.getStream());
-
-  client.end();
-
-  if (error) {
-    Serial.printf("JSON error: %s\n", error.c_str());
-    return false;
-  }
-
-  JsonObject standingsList = doc["MRData"]["StandingsTable"]["StandingsLists"][0];
-  current_season.season = standingsList["season"].as<String>();
-  current_season.round  = standingsList["round"].as<String>();
-
-  JsonArray standings = standingsList["DriverStandings"].as<JsonArray>();
-  current_season.driver_count = standings.size();
-
-  for (size_t i = 0; i < current_season.driver_count && i < 30; i++) {
-    JsonObject item = standings[i];
-    JsonObject driver = item["Driver"];
-    
-    JsonArray constructors = item["Constructors"].as<JsonArray>();
-    JsonObject constructor;
-    if (!constructors.isNull() && constructors.size() > 0) {
-        constructor = constructors[constructors.size() - 1]; // last constructor
-    }
-
-    current_season.driver_standings[i].position      = item["position"].as<String>();
-    current_season.driver_standings[i].points        = item["points"].as<String>();
-    current_season.driver_standings[i].number        = driver["permanentNumber"].as<String>();
-    current_season.driver_standings[i].name          = driver["givenName"].as<String>();
-    current_season.driver_standings[i].surname       = driver["familyName"].as<String>();
-    current_season.driver_standings[i].constructor   = constructor["name"].as<String>();
-    current_season.driver_standings[i].constructorId = constructor["constructorId"].as<String>();
-
-    if (current_season.driver_standings[i].name == "Andrea Kimi") current_season.driver_standings[i].name = "A. Kimi";
-    //if (current_season.driver_standings[i].number == "27") current_season.driver_standings[i].surname = "Hulkenberg";
-  }
-
-  url = "https://api.jolpi.ca/ergast/f1/current/constructorstandings/";
-  
-  client.begin(url.c_str());
-  statusCode = client.GET();
-
-  if (statusCode != 200) {
-    client.end();
-    return false;
-  }
-
-  error = deserializeJson(doc, client.getStream());
-
-  client.end();
-
-  if (error) {
-    Serial.printf("JSON error: %s\n", error.c_str());
-    return false;
-  }
-
-  standingsList = doc["MRData"]["StandingsTable"]["StandingsLists"][0];
-
-  standings = standingsList["ConstructorStandings"].as<JsonArray>();
-  current_season.team_count = standings.size();
-
-  for (size_t i = 0; i < current_season.team_count && i < 12; i++) {
-    JsonObject item = standings[i];
-    JsonObject team = item["Constructor"];
-
-    current_season.team_standings[i].position      = item["position"].as<String>();
-    current_season.team_standings[i].points        = item["points"].as<String>();
-    current_season.team_standings[i].name          = team["name"].as<String>();
-    current_season.team_standings[i].id            = team["constructorId"].as<String>();
-  }
-
-  standings_loaded_once = true;
-
-  return true;
-}*/
 
 // Fetch next race infos and loads them into the given "NextRaceInfo" type struct or returns false on fail
 bool getNextRaceInfo(NextRaceInfo &info) {
     HTTPClient http;
-    //http.begin("https://api.jolpi.ca/ergast/f1/current/2/races/"); //sprint weekend for testing purposes
+    //http.begin("https://api.jolpi.ca/ergast/f1/2026/2/races/"); //sprint weekend for testing purposes
     http.begin("https://api.jolpi.ca/ergast/f1/current/next/races/");
     int httpCode = http.GET();
 
