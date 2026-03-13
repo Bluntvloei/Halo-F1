@@ -145,6 +145,7 @@ lv_conf.h             — LVGL configuration tuned for the JC4827W543 display
   - [X] Library inclusion and set up
   - [ ] Exclude sound during night times
   - [ ] Add Menu config option
+  - [ ] 3D Case rework to fit speaker
 - [ ] Add constructors standings, let user choose if to display drivers, constructors or both standings
 - [ ] Add timezone override in menu
 - [ ] Add more RSS feeds
