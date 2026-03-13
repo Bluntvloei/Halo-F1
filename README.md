@@ -54,14 +54,15 @@ If you want to compile from source, see the [Building from Source](#building-fro
 
 ### Arduino Libraries
 
-Install the following through the Library Manager (Sketch → Include Library → Manage Libraries):
+Install the following through the Library Manager (Sketch → Include Library → Manage Libraries).
+**IMPORTANT:** This project has been developed over an extended period of time, libraries used in it might have introduced breaking changes in latest updates. To ensure full compatibility please make sure to download the correct versions where indicated
 
 | Library       | Author          |
 | ------------- | --------------- |
-| `LVGL`        | LVGL            |
+| `LVGL v9.3`        | LVGL            |
 | `WiFiManager` | tzapu           |
 | `ArduinoJson` | Benoit Blanchon |
-| `bb_spi_lcd`  | Larry Bank      |
+| `bb_spi_lcd v2.7.1`  | Larry Bank      |
 
 > **Note:** `lv_conf.h` must be configured for the JC4827W543 display before compiling. The `lv_conf.h` included in this repository is already set up correctly.
 
