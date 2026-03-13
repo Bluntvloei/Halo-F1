@@ -88,11 +88,12 @@ The following defines are set at the top of `F1Halo.ino` and match the JC4827W54
 
 1. Clone or download this repository
 2. Open `F1Halo.ino` in Arduino IDE
-3. Select **ESP32S3 Dev Module** as the target board
-4. Set **Flash Size** to **4MB**, **PSRAM** to **OPI PSRAM** (8 MB), and **Partition Scheme** to `Huge APP (3MB No OTA/1MB SPIFFS)`. Set **USB CDC On Boot** to **enabled** to get Serial feed via USB
-5. Connect the board via a USB-A to USB-C data cable
-6. If the port does not appear, hold `BOOT`, press `RST`, then release `BOOT` to enter flash mode
-7. Click **Upload**
+3. If your board is Capacitive Touch, make sure `#define TOUCH_CAPACITIVE` is set, otherwise comment it out to compile for Resistive Touch
+4. Select **ESP32S3 Dev Module** as the target board
+5. Set **Flash Size** to **4MB**, **PSRAM** to **OPI PSRAM** (8 MB), and **Partition Scheme** to `Huge APP (3MB No OTA/1MB SPIFFS)`. Set **USB CDC On Boot** to **enabled** to get Serial feed via USB
+6. Connect the board via a USB-A to USB-C data cable
+7. If the port does not appear, hold `BOOT`, press `RST`, then release `BOOT` to enter flash mode
+8. Click **Upload**
 
 ---
 
@@ -140,7 +141,10 @@ lv_conf.h             — LVGL configuration tuned for the JC4827W543 display
 ## Future Developments
 
 - [ ] No spoiler mode
-- [ ] Audio notifications when a new article is fetched
+- [-] Audio notifications when a new article is fetched
+  - [X] Library inclusion and set up
+  - [ ] Exclude sound during night times
+  - [ ] Add Menu config option
 - [ ] Add constructors standings, let user choose if to display drivers, constructors or both standings
 - [ ] Add timezone override in menu
 - [ ] Add more RSS feeds
