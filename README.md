@@ -43,6 +43,8 @@ The easiest way to install the firmware is via the project website, directly fro
 
 If you want to compile from source, see the [Building from Source](#building-from-source) section below.
 
+**Important:** Make sure to install the ipex antenna on the back of the board, this board won't be able to maintain a stable WiFi connection without it.
+
 ---
 
 ## Building from Source
@@ -107,6 +109,7 @@ Halo F1 fetches all data over HTTPS. No account or API key is required.
 | Driver standings              | [Jolpica / Ergast F1 API](https://jolpi.ca/) |
 | Race calendar & session times | [Jolpica / Ergast F1 API](https://jolpi.ca/) |
 | Live session results          | [OpenF1 API](https://openf1.org/)            |
+| Timezone offset from IP       | [Ipapi.co](https://ipapi.co/)                |
 | News headlines                | The Race — RSS feed                          |
 
 ### Anonymous Statistics
@@ -141,7 +144,7 @@ lv_conf.h             — LVGL configuration tuned for the JC4827W543 display
 
 ## Future Developments
 
-- [ ] No spoiler mode
+- [X] No spoiler mode
 - [ ] Audio notifications when a new article is fetched
   - [X] Library inclusion and set up
   - [ ] Exclude sound during night times
