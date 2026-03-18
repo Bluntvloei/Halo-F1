@@ -27,9 +27,9 @@ const int DRIVERS_NUMBER = 22;
 #define SCREEN_HEIGHT 480
 
 #ifdef TOUCH_CAPACITIVE
-const String fw_version = "1.1.0";
+const String fw_version = "1.2.0";
 #else
-const String fw_version = "1.1.0-R";
+const String fw_version = "1.2.0-R";
 #endif
 
 
@@ -47,6 +47,7 @@ WiFiManager wm;
 #include <lvgl.h> // v9.3.0
 #include "lv_conf.h"
 LV_FONT_DECLARE(f1_symbols_28);
+LV_FONT_DECLARE(weather_icons_12);
 LV_FONT_DECLARE(montserrat_12);
 LV_FONT_DECLARE(montserrat_14);
 LV_FONT_DECLARE(montserrat_18);
@@ -63,6 +64,16 @@ LV_FONT_DECLARE(montserrat_38);
 #define F1_SYMBOL_SLIDERS "\xEF\x87\x9E"
 #define F1_SYMBOL_WRENCH "\xEF\x82\xAD"
 #define F1_SYMBOL_HAMMER "\xEF\x9B\xA3"
+
+// Weather icon symbols (Font Awesome 7 Free Solid, font: weather_icons_16)
+#define WX_SYMBOL_SUN           "\xEF\x86\x85"  // U+F185 fa-sun
+#define WX_SYMBOL_CLOUD_SUN     "\xEF\x9B\x84"  // U+F6C4 fa-cloud-sun
+#define WX_SYMBOL_CLOUD         "\xEF\x83\x82"  // U+F0C2 fa-cloud
+#define WX_SYMBOL_SMOG          "\xEF\x9D\x9F"  // U+F75F fa-smog
+#define WX_SYMBOL_DRIZZLE       "\xEF\x9C\xBD"  // U+F73D fa-cloud-rain
+#define WX_SYMBOL_RAIN          "\xEF\x9D\x80"  // U+F740 fa-cloud-showers-heavy
+#define WX_SYMBOL_SNOW          "\xEF\x8B\x9C"  // U+F2DC fa-snowflake
+#define WX_SYMBOL_STORM         "\xEF\x83\xA7"  // U+F0E7 fa-bolt
 
 #define HALO_COLOR_RED 0xFF1511
 
@@ -127,6 +138,8 @@ struct NextRaceInfo {
     String raceName;
     String circuitName;
     String country;
+    float lat;   // circuit latitude  (from Jolpi API)
+    float lon;   // circuit longitude (from Jolpi API)
     bool isSprintWeekend;
     int sessionCount;
     RaceSession sessions[10]; // Usually no more than 6
@@ -208,6 +221,7 @@ TabsStruct tabs;
 #include "localized_strings.h"
 #include "utils.h"
 #include "notifications.h"
+#include "weather.h"      // ← weather forecast (Open-Meteo, no API key)
 #include "ui.h"
 #include "wifi_handler.h" // WiFiManager by Tzapu v2.0.17
 

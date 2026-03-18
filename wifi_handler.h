@@ -415,6 +415,8 @@ bool getNextRaceInfo(NextRaceInfo &info) {
     info.raceName    = race["raceName"].as<String>();
     info.circuitName = race["Circuit"]["circuitName"].as<String>();
     info.country     = race["Circuit"]["Location"]["country"].as<String>();
+    info.lat         = race["Circuit"]["Location"]["lat"].as<float>();
+    info.lon         = race["Circuit"]["Location"]["long"].as<float>();
 
     info.sessionCount = 0;
     info.isSprintWeekend = race["Sprint"].is<JsonVariant>(); //checking if key exists, maybe better to do as race["Sprint"] ? true : false; ??
@@ -468,6 +470,11 @@ void update_f1_api(lv_timer_t *timer) {
                         next_race.sessions[i].time.c_str(),
                         has_started.c_str());
       }
+
+      // ── Weather forecast for each session (Open-Meteo, no API key) ─────────
+      // fetchWeatherForRace() is self-throttled (WEATHER_REFRESH_MS = 1 h) so
+      // calling it here every time update_f1_api fires (hourly) is safe.
+      fetchWeatherForRace(next_race);
   }
 
   //update_driver_standings_ui();

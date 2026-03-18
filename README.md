@@ -13,6 +13,7 @@ The pre-compiled firmware is free to install from the [project website](https://
 - **Session Times** — FP1, FP2, FP3, Sprint Qualifying, Sprint Race, Qualifying and Race start times for the upcoming weekend, automatically converted to your local timezone
 - **Drivers' Championship** — Full standings table updated throughout the season; includes a pre-season fallback that populates the driver and constructor roster before the first race
 - **Session Results** — Qualifying (Q1/Q2/Q3) and race results fetched from the live OpenF1 API, including gap to leader
+- **No Spoiler Mode** — No unwanted spoilers when watching live sessions isn't an option!
 - **Latest News** — F1 headlines pulled from an RSS feed (currently English only)
 - **Night Mode** — Configurable dimming window; set start/stop times and a separate night brightness level
 - **8 Languages** — English, Italian, Spanish, French, Dutch, German, Portuguese, Norwegian
@@ -109,7 +110,8 @@ Halo F1 fetches all data over HTTPS. No account or API key is required.
 | Driver standings              | [Jolpica / Ergast F1 API](https://jolpi.ca/) |
 | Race calendar & session times | [Jolpica / Ergast F1 API](https://jolpi.ca/) |
 | Live session results          | [OpenF1 API](https://openf1.org/)            |
-| Timezone offset from IP       | [Ipapi.co](https://ipapi.co/)                |
+| Timezone offset from IP       | [IP API](https://ipapi.co/)                  |
+| Weather Forecast              | [Open Meteo](https://open-meteo.com/)        |
 | News headlines                | The Race — RSS feed                          |
 
 ### Anonymous Statistics
@@ -131,6 +133,7 @@ No personal data, Wi-Fi credentials, location or network information is ever tra
 F1Halo.ino            — Main sketch: hardware initialisation, setup(), loop()
 ui.h                  — LVGL UI construction and all event handlers
 wifi_handler.h        — Wi-Fi setup, all API fetch functions, statistics ping
+weather.h             — Weather API calls and utils
 localized_strings.h   — Translated string tables for all 8 supported languages
 utils.h               — Utility functions (UUID generation, time helpers, etc.)
 notifications.h       — In-app notification queue and scheduler
@@ -145,6 +148,7 @@ lv_conf.h             — LVGL configuration tuned for the JC4827W543 display
 ## Future Developments
 
 - [x] No spoiler mode
+- [x] Weather forecast for each session
 - [ ] Audio notifications when a new article is fetched
   - [x] Library inclusion and set up
   - [ ] Exclude sound during night times
@@ -186,6 +190,8 @@ No open-source license is granted. The absence of a license means this code is *
 - [bb_spi_lcd](https://github.com/bitbank2/bb_spi_lcd) — SPI display driver by Larry Bank
 - [Jolpica / Ergast F1 API](https://jolpi.ca/) — Race calendar and standings data
 - [OpenF1](https://openf1.org/) — Live session result data
+- [Open Meteo](https://open-meteo.com/) — Weather forecast data
+- [IP API](https://ipapi.co/) — Timezone offset via IP
 
 ---
 

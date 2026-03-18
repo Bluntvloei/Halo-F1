@@ -21,6 +21,7 @@ static lv_style_t style_standings_lbl_name;
 static lv_style_t style_standings_lbl_points;
 static bool styles_standings_initialized = false;
 // RACE SESSIONS
+static lv_style_t style_session_row;    // NEW: per-session flex-row wrapper
 static lv_style_t style_session_label;
 static lv_style_t style_stripe;
 static bool race_styles_initialized = false;
@@ -950,16 +951,26 @@ void create_or_reload_race_sessions(bool force_reload) {
   if (!race_styles_initialized) {
       race_styles_initialized = true;
 
-      // Style for session labels
+      // ── Row wrapper: the red highlight lives here now ──────────────────────
+      lv_style_init(&style_session_row);
+      lv_style_set_bg_color(&style_session_row, lv_color_hex(HALO_COLOR_RED));
+      // bg_opa is set per-object below (COVER = active, TRANSP = future)
+      lv_style_set_border_width(&style_session_row, 0);
+      lv_style_set_radius(&style_session_row, 0);
+      lv_style_set_pad_all(&style_session_row, 0);
+      lv_style_set_pad_gap(&style_session_row, 0);
+
+      // ── Session text label: transparent bg, inherits row's background ──────
       lv_style_init(&style_session_label);
       lv_style_set_text_align(&style_session_label, LV_TEXT_ALIGN_LEFT);
-      lv_style_set_bg_color(&style_session_label, lv_color_hex(HALO_COLOR_RED));
       lv_style_set_text_font(&style_session_label, &montserrat_12);
       lv_style_set_pad_top(&style_session_label, 3);
       lv_style_set_pad_bottom(&style_session_label, 3);
       lv_style_set_pad_left(&style_session_label, 8);
+      lv_style_set_pad_right(&style_session_label, 0);
+      lv_style_set_bg_opa(&style_session_label, LV_OPA_TRANSP);
 
-      // Stripe (chequered flag separator)
+      // ── Stripe (chequered flag separator) ─────────────────────────────────
       lv_style_init(&style_stripe);
       lv_style_set_margin_top(&style_stripe, 20);
       lv_style_set_margin_bottom(&style_stripe, 20);
@@ -975,16 +986,59 @@ void create_or_reload_race_sessions(bool force_reload) {
 
   if (!next_race.sessionCount || next_race.sessionCount == NULL) return;
 
+  // ── Row width: same 90 % of screen that the old single labels used ─────────
+  lv_coord_t row_w = (lv_coord_t)(SCREEN_WIDTH - 4);
+
+  // Weather-badge column is only shown when data is available.
+  // 48 px is comfortable for "SUN 22°" in montserrat_12.
+  const lv_coord_t WEATHER_W = 48;
+
   for (int i = 0; i < next_race.sessionCount; i++) {
     session = next_race.sessions[i];
     int j = i + 1 < next_race.sessionCount ? i + 1 : next_race.sessionCount - 1;
 
-    bool started = hasSessionStarted(session.date, session.time);
-    bool started_next = hasSessionStarted(next_race.sessions[j].date, next_race.sessions[j].time);
+    bool started      = hasSessionStarted(session.date, session.time);
+    bool started_next = hasSessionStarted(next_race.sessions[j].date,
+                                          next_race.sessions[j].time);
+    bool is_active    = (started && !started_next) ||
+                        (started && i == next_race.sessionCount - 1);
 
-    session_label = lv_label_create(sessions_container);
+    // ── 1. Flex-row wrapper ─────────────────────────────────────────────────
+    lv_obj_t* session_row = lv_obj_create(sessions_container);
+    lv_obj_remove_style_all(session_row);
+    lv_obj_add_style(session_row, &style_session_row, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_width(session_row, row_w);
+    lv_obj_set_height(session_row, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(session_row, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(session_row,
+                          LV_FLEX_ALIGN_START,
+                          LV_FLEX_ALIGN_CENTER,
+                          LV_FLEX_ALIGN_CENTER);
+    lv_obj_remove_flag(session_row, LV_OBJ_FLAG_SCROLLABLE);
 
-    if (next_race.isSprintWeekend && (session.name == "Sprint Qualifying" || session.name == "Sprint Race")) {
+    // Red-highlight or transparent background
+    lv_obj_set_style_bg_opa(session_row,
+                            is_active ? LV_OPA_COVER : LV_OPA_TRANSP,
+                            LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // Conditional top/bottom margins (same logic as before, now on the row)
+    if (session.name == "Sprint Qualifying" || session.name == "Qualifying") {
+        lv_obj_set_style_margin_top(session_row, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+    if (session.name == "Qualifying" && !next_race.isSprintWeekend) {
+        lv_obj_set_style_margin_bottom(session_row, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+
+    if (is_active) last_session = session;
+
+    // ── 2. Session info label (fills available width) ───────────────────────
+    session_label = lv_label_create(session_row);
+    lv_obj_add_style(session_label, &style_session_label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_flex_grow(session_label, 1);  // expands to fill space left of badge
+    lv_label_set_long_mode(session_label, LV_LABEL_LONG_MODE_SCROLL);
+
+    if (next_race.isSprintWeekend &&
+        (session.name == "Sprint Qualifying" || session.name == "Sprint Race")) {
         lv_label_set_text_fmt(session_label,
                               LV_SYMBOL_CHARGE "   %s   " LV_SYMBOL_RIGHT "   %s",
                               getLocalizedSessionName(session),
@@ -996,23 +1050,33 @@ void create_or_reload_race_sessions(bool force_reload) {
                               getSessionDateTimeFormatted(session.date, session.time));
     }
 
-    // Apply style
-    lv_obj_add_style(session_label, &style_session_label, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // ── 3. Weather badge (right-side, fixed width) ───────────────────────────
+    // Only rendered when Open-Meteo data has been fetched for this slot.
+    if (weather_fetched && i < 10 && session_weather[i].valid) {
+        lv_obj_t* w_lbl = lv_label_create(session_row);
 
-    // Adjust width & scroll mode
-    lv_obj_set_width(session_label, 0.9 * SCREEN_WIDTH);
-    lv_label_set_long_mode(session_label, LV_LABEL_LONG_MODE_SCROLL);
+        // Icon glyph + temperature: e.g. "☀ 22°"
+        // The icon is rendered in weather_icons_16; the degree+number are
+        // rendered as plain text with the same font (digits are in every font).
+        char w_buf[16];
+        snprintf(w_buf, sizeof(w_buf), "%s %d\xC2\xB0",
+                 getWeatherIcon(session_weather[i].wmo_code),
+                 (int)session_weather[i].temp_c);
+        lv_label_set_text(w_lbl, w_buf);
 
-    // Conditional margins
-    if (session.name == "Sprint Qualifying" || session.name == "Qualifying") lv_obj_set_style_margin_top(session_label, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
-    if (session.name == "Qualifying" && !next_race.isSprintWeekend) lv_obj_set_style_margin_bottom(session_label, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_width(w_lbl, WEATHER_W);
+        lv_obj_set_height(w_lbl, LV_SIZE_CONTENT);
+        lv_label_set_long_mode(w_lbl, LV_LABEL_LONG_MODE_CLIP);
 
-    // Highlight active session
-    if ((started && !started_next) || (started && i == next_race.sessionCount - 1)) {
-        lv_obj_set_style_bg_opa(session_label, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
-        last_session = session;
-    } else {
-        lv_obj_set_style_bg_opa(session_label, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(w_lbl,  &weather_icons_12, LV_PART_MAIN);
+        lv_obj_set_style_text_align(w_lbl, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN);
+        lv_obj_set_style_pad_right(w_lbl,  4, LV_PART_MAIN);
+        lv_obj_set_style_bg_opa(w_lbl,     LV_OPA_TRANSP, LV_PART_MAIN);
+
+        lv_color_t badge_color = is_active
+            ? lv_color_white()
+            : getWeatherColor(session_weather[i].wmo_code);
+        lv_obj_set_style_text_color(w_lbl, badge_color, LV_PART_MAIN);
     }
   }
 
